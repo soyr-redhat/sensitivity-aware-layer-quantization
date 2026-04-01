@@ -112,7 +112,7 @@ def main():
     parser.add_argument(
         '--output-dir',
         type=str,
-        default='/workspace/gguf_models/tensor_types',
+        default='outputs/tensor_configs',
         help='Output directory for tensor-type files'
     )
     args = parser.parse_args()

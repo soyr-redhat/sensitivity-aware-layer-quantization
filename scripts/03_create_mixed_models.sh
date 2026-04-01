@@ -1,15 +1,22 @@
 #!/bin/bash
 # Create mixed-precision GGUF files using llama-quantize
-# This script is meant to run ON THE CLUSTER where the base model exists
 #
-# Usage: Run this script inside the cluster environment
+# Prerequisites:
+#   - llama.cpp compiled with quantization support
+#   - Base model in F16 GGUF format
+#   - Tensor-type config files (from 02_generate_tensor_configs.py)
+#
+# Usage:
+#   1. Customize paths below for your environment
+#   2. Run: ./03_create_mixed_models.sh
 
 set -e
 
-LLAMA_QUANTIZE="/workspace/llama.cpp/build/bin/llama-quantize"
-BASE_GGUF="/workspace/gguf_models/mistral-7b-f16.gguf"
-OUTPUT_DIR="/workspace/gguf_models/mixed"
-TENSOR_TYPE_DIR="/workspace/outputs/tensor_types"
+# CUSTOMIZE THESE PATHS FOR YOUR ENVIRONMENT
+LLAMA_QUANTIZE="${LLAMA_QUANTIZE:-llama-quantize}"  # or full path like "/path/to/llama-quantize"
+BASE_GGUF="${BASE_GGUF:-models/mistral-7b-f16.gguf}"  # Path to your F16 base model
+OUTPUT_DIR="${OUTPUT_DIR:-models/mixed}"  # Where to save mixed models
+TENSOR_TYPE_DIR="${TENSOR_TYPE_DIR:-outputs/tensor_configs}"  # Tensor config files
 
 echo "================================================================================"
 echo "CREATING MIXED-PRECISION GGUF FILES"

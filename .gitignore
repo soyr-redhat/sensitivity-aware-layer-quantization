@@ -20,8 +20,11 @@ ENV/
 *.swp
 *.swo
 
-# Outputs
-outputs/
+# Outputs (but keep tensor configs)
+outputs/*
+!outputs/tensor_configs/
+outputs/tensor_configs/*
+!outputs/tensor_configs/*.txt
 *.log
 
 # Model cache
