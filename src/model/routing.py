@@ -28,22 +28,12 @@ class RouterHook:
         self.hooks = []
         layer_idx = 0
 
-        # For Mixtral, try multiple potential structures
-        # 1. Try direct access to model.model.layers
+        # For Mixtral, the MoE block is in layer.mlp (MixtralSparseMoeBlock)
         if hasattr(model, 'model') and hasattr(model.model, 'layers'):
             for layer in model.model.layers:
-                if hasattr(layer, 'block_sparse_moe') and hasattr(layer.block_sparse_moe, 'gate'):
-                    hook = layer.block_sparse_moe.gate.register_forward_hook(
-                        self._create_hook_fn(layer_idx)
-                    )
-                    self.hooks.append(hook)
-                    layer_idx += 1
-
-        # 2. Fallback: search through all named modules
-        if layer_idx == 0:
-            for name, module in model.named_modules():
-                if 'block_sparse_moe' in name and hasattr(module, 'gate'):
-                    hook = module.gate.register_forward_hook(
+                if hasattr(layer, 'mlp') and hasattr(layer.mlp, 'gate'):
+                    # This is the MoE router
+                    hook = layer.mlp.gate.register_forward_hook(
                         self._create_hook_fn(layer_idx)
                     )
                     self.hooks.append(hook)
@@ -51,15 +41,6 @@ class RouterHook:
 
         self.layer_count = layer_idx
         print(f"Registered hooks on {self.layer_count} MoE layers")
-
-        if self.layer_count == 0:
-            print("WARNING: No MoE layers found! Model structure:")
-            print(f"  Has 'model' attr: {hasattr(model, 'model')}")
-            if hasattr(model, 'model'):
-                print(f"  Has 'model.layers' attr: {hasattr(model.model, 'layers')}")
-                if hasattr(model.model, 'layers') and len(model.model.layers) > 0:
-                    print(f"  First layer type: {type(model.model.layers[0])}")
-                    print(f"  First layer has block_sparse_moe: {hasattr(model.model.layers[0], 'block_sparse_moe')}")
 
     def _create_hook_fn(self, layer_idx: int):
         """Create a hook function for a specific layer.
@@ -71,22 +52,26 @@ class RouterHook:
             Hook function
         """
         def hook_fn(module, input, output):
-            # output is the router logits: [batch_size * seq_len, num_experts]
-            # We want to capture which experts are selected
+            # Mixtral's gate returns (router_logits, top_k_weights, top_k_indices)
+            # We want to capture the routing decisions
             with torch.no_grad():
-                router_logits = output
-                # Get top-k experts (Mixtral uses top-2)
-                top_k = 2  # Mixtral configuration
-                routing_weights, selected_experts = torch.topk(
-                    router_logits, top_k, dim=-1
-                )
+                # Handle both tuple output and tensor output
+                if isinstance(output, tuple):
+                    router_logits, routing_weights, selected_experts = output
+                else:
+                    # Fallback if it's just logits
+                    router_logits = output
+                    top_k = 2  # Mixtral uses top-2
+                    routing_weights, selected_experts = torch.topk(
+                        router_logits, top_k, dim=-1
+                    )
 
                 # Store the routing decisions
                 self.routing_decisions[layer_idx].append(
                     selected_experts.cpu().numpy()
                 )
                 self.routing_weights[layer_idx].append(
-                    torch.softmax(routing_weights, dim=-1).cpu().numpy()
+                    routing_weights.cpu().numpy()
                 )
 
         return hook_fn

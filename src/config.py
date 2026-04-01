@@ -30,6 +30,9 @@ class DataConfig:
     num_samples: int = 1000
     max_length: int = 512
     seed: int = 42
+    # Prompt-based dataset config
+    prompt_types: list = field(default_factory=lambda: ['code', 'math', 'creative', 'factual', 'reasoning'])
+    samples_per_type: int = 20
 
 
 @dataclass
@@ -37,6 +40,14 @@ class RoutingAnalysisConfig:
     """Routing analysis configuration."""
     output_dir: str = "outputs/routing_logs"
     save_frequency: int = 100
+
+
+@dataclass
+class ActivationAnalysisConfig:
+    """Activation profiling configuration."""
+    output_dir: str = "outputs/activations"
+    save_raw_activations: bool = False
+    layers_to_track: str = "all"
 
 
 @dataclass
@@ -52,6 +63,7 @@ class Config:
     model: ModelConfig = field(default_factory=ModelConfig)
     data: DataConfig = field(default_factory=DataConfig)
     routing_analysis: RoutingAnalysisConfig = field(default_factory=RoutingAnalysisConfig)
+    activation_analysis: ActivationAnalysisConfig = field(default_factory=ActivationAnalysisConfig)
     analysis: AnalysisConfig = field(default_factory=AnalysisConfig)
 
     @classmethod
@@ -64,6 +76,7 @@ class Config:
             model=ModelConfig(**config_dict.get('model', {})),
             data=DataConfig(**config_dict.get('data', {})),
             routing_analysis=RoutingAnalysisConfig(**config_dict.get('routing_analysis', {})),
+            activation_analysis=ActivationAnalysisConfig(**config_dict.get('activation_analysis', {})),
             analysis=AnalysisConfig(**config_dict.get('analysis', {}))
         )
 

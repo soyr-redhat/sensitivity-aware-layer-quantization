@@ -1,5 +1,15 @@
 """Data loading and processing utilities."""
 
-from .dataset import load_dataset_samples
+from .prompts import (
+    get_prompts_by_type,
+    get_all_prompt_types,
+    load_prompts_dataset,
+    PROMPT_TEMPLATES
+)
 
-__all__ = ['load_dataset_samples']
+__all__ = [
+    'get_prompts_by_type',
+    'get_all_prompt_types',
+    'load_prompts_dataset',
+    'PROMPT_TEMPLATES'
+]
