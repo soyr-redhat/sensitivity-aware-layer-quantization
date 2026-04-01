@@ -1,24 +1,24 @@
-# Final Perplexity Results - Mixed vs Uniform Quantization
+# Perplexity Results: Mixed-Precision vs Uniform Quantization
 
 **Date:** April 1, 2026  
 **Test:** Perplexity measurement on WikiText-2 style text  
-**Metric:** Lower perplexity = better quality
+**Metric:** Lower perplexity indicates better quality
 
 ---
 
-## 🏆 WINNER: conservative_mixed
+## Summary
 
-**Best quality model overall** with lowest perplexity score while being **8% smaller** than uniform Q6_K!
+The **conservative_mixed** configuration achieves the lowest perplexity score (best quality) while being **8% smaller** than uniform Q6_K quantization.
 
 ---
 
 ## Complete Results
 
-| Rank | Model | Size (GB) | Perplexity ⬇️ | Quality |
-|------|-------|-----------|---------------|---------|
-| **🥇** | **conservative_mixed** | **5.08** | **1.1527** | **BEST** |
-| 🥈 | balanced_mixed | 4.69 | 1.1568 | Excellent |
-| 🥉 | Q8_0 | 7.17 | 1.1933 | Very Good |
+| Rank | Model | Size (GB) | Perplexity | Quality |
+|------|-------|-----------|------------|---------|
+| **1** | **conservative_mixed** | **5.08** | **1.1527** | **Best** |
+| 2 | balanced_mixed | 4.69 | 1.1568 | Excellent |
+| 3 | Q8_0 | 7.17 | 1.1933 | Very Good |
 | 4 | Q6_K | 5.53 | 1.1940 | Very Good |
 | 5 | Q4_K_M | 4.07 | 1.2035 | Good |
 | 6 | Q2_K | 2.87 | 1.2375 | Acceptable |
@@ -28,36 +28,36 @@
 
 ## Key Findings
 
-### ✅ Hypothesis VALIDATED
+### Hypothesis Validation
 
-**conservative_mixed achieves BEST quality while being smaller than Q6_K:**
+**conservative_mixed achieves best quality while being smaller than Q6_K:**
 - Perplexity: **1.1527** (best overall)
 - Size: **5.08 GB** (8% smaller than Q6_K)
-- Strategy: Q4_K early → Q6_K mid → Q8_0 final 19% of layers
+- Strategy: Q4_K early layers, Q6_K middle layers, Q8_0 final 19% of layers
 
-**This proves our core hypothesis:** Activation-guided layer-wise quantization achieves better quality-size tradeoffs than uniform quantization.
+This validates our core hypothesis that activation-guided layer-wise quantization achieves better quality-size tradeoffs than uniform quantization.
 
-### 🎯 Direct Comparisons
+### Direct Comparisons
 
 **1. conservative_mixed (5.08 GB) vs Q6_K (5.53 GB)**
-- Size: **-8.1% smaller** ✓
-- Quality: **1.1527 vs 1.1940** = 3.5% BETTER ✓✓
-- **Result:** Conservative mixed DOMINATES - smaller AND better quality
+- Size: **8.1% smaller**
+- Quality: **1.1527 vs 1.1940** (3.5% better)
+- **Result:** Conservative mixed dominates on both metrics - smaller and better quality
 
 **2. balanced_mixed (4.69 GB) vs Q4_K_M (4.07 GB)**  
-- Size: +15% larger
-- Quality: **1.1568 vs 1.2035** = 4.0% BETTER ✓
-- **Result:** Balanced mixed trades size for quality improvement
+- Size: 15% larger
+- Quality: **1.1568 vs 1.2035** (4.0% better)
+- **Result:** Balanced mixed trades size for significant quality improvement
 
 **3. balanced_mixed (4.69 GB) vs Q6_K (5.53 GB)**
-- Size: **-15% smaller** ✓
-- Quality: **1.1568 vs 1.1940** = 3.2% BETTER ✓
-- **Result:** Balanced mixed is BETTER on both metrics!
+- Size: **15% smaller**
+- Quality: **1.1568 vs 1.1940** (3.2% better)
+- **Result:** Balanced mixed outperforms on both metrics
 
 **4. aggressive_mixed (3.22 GB) vs Q2_K (2.87 GB)**
-- Size: +12% larger  
-- Quality: **1.9578 vs 1.2375** = 58% WORSE ✗
-- **Result:** Aggressive mixed FAILED - worse quality despite being larger
+- Size: 12% larger  
+- Quality: **1.9578 vs 1.2375** (58% worse)
+- **Result:** Aggressive mixed failed - worse quality despite being larger
 
 ---
 
@@ -127,46 +127,46 @@ Quality (Perplexity) vs Size
 
 ## Practical Recommendations
 
-### 🥇 Best Choice: conservative_mixed
-**Use when:** Quality matters and you have ~5GB budget
+### Recommended Configuration: conservative_mixed
+**Use case:** Quality-critical applications with ~5GB memory budget
 - Best quality (1.1527 perplexity)
 - Reasonable size (5.08 GB)
 - 8% smaller than Q6_K with better quality
 - **Recommended for production deployments**
 
-### 🥈 Strong Alternative: balanced_mixed  
-**Use when:** You need smaller size but still want excellent quality
-- 2nd best quality (1.1568 perplexity)
+### Alternative Configuration: balanced_mixed  
+**Use case:** Resource-constrained deployments requiring good quality
+- Second-best quality (1.1568 perplexity)
 - Compact size (4.69 GB)
 - Beats Q6_K quality while being 15% smaller
-- **Good for resource-constrained deployments**
+- **Good for memory-limited environments**
 
-### ⚠️ Avoid: aggressive_mixed
-**Do not use** - Quality degradation too severe
-- Worst quality (1.9578 perplexity)
-- Not worth the size savings
-- Shows that over-compression in early layers hurts too much
+### Not Recommended: aggressive_mixed
+**Finding:** Quality degradation too severe for practical use
+- Poor quality (1.9578 perplexity)
+- Size savings not worth quality loss
+- Demonstrates that over-compression in early layers significantly degrades performance
 
-### For Comparison: Uniform Options
-- **Q8_0:** Use if quality is paramount and size doesn't matter
-- **Q6_K:** Now dominated by conservative_mixed
-- **Q4_K_M:** Reasonable if you can't use mixed quantization
-- **Q2_K:** Only for severe size constraints
+### Uniform Quantization Baselines
+- **Q8_0:** Best uniform quality when size is not constrained
+- **Q6_K:** Dominated by conservative_mixed (worse quality, larger size)
+- **Q4_K_M:** Reasonable baseline when mixed quantization unavailable
+- **Q2_K:** Only for extreme size constraints
 
 ---
 
-## Research Contributions Validated
+## Research Contributions
 
-### ✅ Core Hypothesis Confirmed
+### Core Hypothesis Validation
 
-**"Activation-guided layer-wise quantization achieves better quality-size tradeoffs than uniform quantization"**
+**Hypothesis:** Activation-guided layer-wise quantization achieves better quality-size tradeoffs than uniform quantization
 
 **Evidence:**
-1. conservative_mixed: BEST quality + 8% smaller than Q6_K
-2. balanced_mixed: Better than Q6_K while 15% smaller
-3. Pareto frontier analysis shows mixed models dominate uniform
+1. conservative_mixed: Best quality while being 8% smaller than Q6_K
+2. balanced_mixed: Better quality than Q6_K while being 15% smaller
+3. Pareto frontier analysis shows mixed-precision models dominate uniform quantization
 
-### 🔬 Key Insights
+### Key Insights
 
 **1. Layer sensitivity matters:**
 - Early layers can tolerate aggressive quantization (Q4_K)
@@ -187,24 +187,24 @@ Quality (Perplexity) vs Size
 
 ## Methodology Validation
 
-Our activation profiling approach successfully:
-1. ✅ Identified which layers can tolerate aggressive compression
-2. ✅ Allocated bits efficiently across layers
-3. ✅ Achieved better quality than uniform quantization at same/smaller size
-4. ✅ Demonstrated practical value of activation-guided quantization
+The activation profiling approach successfully:
+1. Identified which layers can tolerate aggressive compression
+2. Allocated quantization bits efficiently across layers
+3. Achieved better quality than uniform quantization at same or smaller size
+4. Demonstrated practical value of activation-guided quantization
 
 ---
 
 ## Conclusion
 
-**MAJOR SUCCESS:** Activation-guided layer-wise quantization WORKS.
+Activation-guided layer-wise quantization demonstrates measurable improvements over uniform quantization.
 
-**conservative_mixed achieved:**
-- 🏆 Best quality of all models tested (1.1527 perplexity)
-- 📉 8% smaller than uniform Q6_K
-- 💰 Optimal quality-size tradeoff
-- ✅ Validates activation profiling approach
+**conservative_mixed configuration achieved:**
+- Best quality of all models tested (1.1527 perplexity)
+- 8% smaller than uniform Q6_K baseline
+- Optimal quality-size tradeoff on Pareto frontier
+- Validates the activation profiling methodology
 
-**Impact:** This demonstrates that analyzing layer sensitivity and allocating quantization precision accordingly produces superior results to uniform quantization. The methodology is general and can be applied to any transformer architecture.
+**Impact:** This work demonstrates that analyzing layer sensitivity and allocating quantization precision accordingly produces superior results compared to uniform quantization. The methodology is general and can be applied to any transformer architecture.
 
-**Recommended model:** **conservative_mixed** for production use - best quality with excellent compression.
+**Recommended configuration:** **conservative_mixed** for production deployments - best quality with excellent compression ratio.
