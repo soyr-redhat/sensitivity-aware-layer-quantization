@@ -31,7 +31,7 @@ These results validate that activation-guided quantization outperforms uniform q
 | Q2_K (uniform) | 2.87 | 1.2375 | Acceptable |
 | aggressive_mixed | 3.22 | 1.9578 | Poor |
 
-See [RESULTS.md](RESULTS.md) for complete analysis.
+See [Mistral-7B Results](docs/RESULTS_MISTRAL.md) and [Qwen2.5-3B Test](docs/RESULTS_QWEN.md) for complete analysis.
 
 ## Methodology
 
@@ -45,7 +45,7 @@ python scripts/02_optimize_layer_config.py \
   --test-data data/perplexity_test.txt \
   --target-size 5.0 \
   --max-evals 50 \
-  --save-config outputs/tensor_configs/optimized.txt
+  --save-config configs/optimized.txt
 ```
 
 This approach:
@@ -63,7 +63,7 @@ This approach:
 Generate configurations based on activation sensitivity heuristics:
 
 ```bash
-python scripts/02_generate_configs_heuristic.py --activation-stats stats.json
+python scripts/alternatives/heuristic_configs.py --activation-stats stats.json
 ```
 
 This approach:
@@ -95,21 +95,26 @@ Measures perplexity on WikiText-2 style text to validate quality improvements.
 
 ```
 activation-guided-quantization/
-├── README.md                              # This file
-├── RESULTS.md                             # Detailed benchmark results (Mistral-7B)
+├── README.md                          # This file
+├── LICENSE                            # MIT license
+├── requirements.txt                   # Python dependencies
+├── docs/
+│   ├── RESULTS_MISTRAL.md            # Mistral-7B benchmark results
+│   ├── RESULTS_QWEN.md               # Qwen2.5-3B large-scale test results
+│   └── TESTING.md                    # Test verification
 ├── scripts/
-│   ├── 01_profile_activations.py         # (Optional) Collect activation stats
-│   ├── 02_optimize_layer_config.py       # Bayesian optimization (recommended)
-│   ├── 02_generate_configs_heuristic.py  # Heuristic-based configs (fast)
-│   ├── 02_generate_tensor_configs_manual.py  # Manual hardcoded configs
-│   ├── 03_create_mixed_models.sh         # Build GGUF models with llama-quantize
-│   └── 04_benchmark_perplexity.sh        # Quality benchmarking
-├── outputs/
-│   └── tensor_configs/                   # Quantization mapping files
-│       ├── conservative_mixed.txt        # Mistral-7B optimal config
-│       ├── balanced_mixed.txt            # Mistral-7B alternative config
-│       └── aggressive_mixed.txt          # Mistral-7B over-compression baseline
-└── requirements.txt
+│   ├── 01_profile_activations.py     # (Optional) Activation profiling
+│   ├── 02_optimize_layer_config.py   # Bayesian optimizer (recommended)
+│   ├── 03_create_mixed_models.sh     # Build GGUF models
+│   ├── 04_benchmark_perplexity.sh    # Quality benchmarking
+│   └── alternatives/
+│       ├── heuristic_configs.py      # Fast heuristic-based configs
+│       └── manual_configs.py         # Manual hardcoded configs
+└── configs/
+    └── mistral-7b/                   # Pre-optimized configurations
+        ├── conservative_mixed.txt    # Optimal (PPL 1.1527)
+        ├── balanced_mixed.txt        # Alternative
+        └── aggressive_mixed.txt      # Baseline
 ```
 
 ## Reproduction
@@ -143,11 +148,11 @@ python scripts/02_optimize_layer_config.py \
   --test-data /path/to/test_data.txt \
   --target-size 5.0 \
   --max-evals 50 \
-  --save-config outputs/tensor_configs/optimized.txt
+  --save-config configs/optimized.txt
 
 # 2. Create model with optimized config
 llama-quantize \
-  --tensor-type-file outputs/tensor_configs/optimized.txt \
+  --tensor-type-file configs/optimized.txt \
   /path/to/your-model-f16.gguf \
   /path/to/your-model-optimized.gguf \
   Q4_K
