@@ -16,6 +16,8 @@ class ModelConfig:
     trust_remote_code: bool = True
     # Quantization options
     load_in_4bit: bool = False
+    load_in_8bit: bool = False
+    llm_int8_enable_fp32_cpu_offload: bool = False
     bnb_4bit_compute_dtype: str = "float16"
     bnb_4bit_quant_type: str = "nf4"
     bnb_4bit_use_double_quant: bool = True

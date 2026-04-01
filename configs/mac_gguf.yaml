@@ -1,0 +1,28 @@
+# Configuration for Mac with GGUF quantized model via llama.cpp
+# This will download a pre-quantized 4-bit model (~26GB)
+
+model:
+  # Using GGUF format - pre-quantized for efficient inference
+  backend: "gguf"  # Use llama.cpp backend
+  repo_id: "TheBloke/Mixtral-8x7B-Instruct-v0.1-GGUF"
+  filename: "mixtral-8x7b-instruct-v0.1.Q4_K_M.gguf"  # 4-bit quantized, ~26GB
+
+  # llama.cpp settings
+  n_ctx: 2048  # Context window
+  n_gpu_layers: 0  # Use CPU (Mac doesn't need this)
+  n_threads: 8  # Adjust based on your CPU cores
+  verbose: false
+
+data:
+  dataset_name: "openwebtext"
+  num_samples: 50
+  max_length: 256
+  seed: 42
+
+routing_analysis:
+  output_dir: "outputs/routing_logs"
+  save_frequency: 10
+
+analysis:
+  output_dir: "outputs/analysis"
+  plot_dir: "outputs/plots"

@@ -1,5 +1,5 @@
 # Configuration for local Mac with 48GB unified memory
-# Uses 4-bit quantization to fit Mixtral-8x7B
+# Uses 8-bit quantization with CPU offload
 
 model:
   name: "mistralai/Mixtral-8x7B-v0.1"
@@ -7,11 +7,9 @@ model:
   device_map: "auto"
   torch_dtype: "float16"
   trust_remote_code: true
-  # 4-bit quantization settings
-  load_in_4bit: true
-  bnb_4bit_compute_dtype: "float16"
-  bnb_4bit_quant_type: "nf4"  # NormalFloat4 - good balance
-  bnb_4bit_use_double_quant: true  # Extra compression
+  # 8-bit quantization (bitsandbytes works better than 4-bit on Mac)
+  load_in_8bit: true
+  llm_int8_enable_fp32_cpu_offload: true  # Required for Mac
 
 data:
   # Start small for dry run

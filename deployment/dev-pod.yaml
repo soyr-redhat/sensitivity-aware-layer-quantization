@@ -1,0 +1,44 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mixtral-dev
+  namespace: user-sbowerma
+  labels:
+    app: mixtral-dev
+    kueue.x-k8s.io/queue-name: unreserved
+spec:
+  restartPolicy: Never
+  containers:
+  - name: dev
+    image: python:3.12
+    command:
+    - sleep
+    - infinity
+    resources:
+      limits:
+        nvidia.com/mig-3g.71gb: "1"
+        memory: "64Gi"
+        cpu: "12"
+      requests:
+        nvidia.com/mig-3g.71gb: "1"
+        memory: "64Gi"
+        cpu: "12"
+    volumeMounts:
+    - mountPath: /model-cache
+      name: model-cache
+    - mountPath: /workspace
+      name: workspace
+    env:
+    - name: HF_HOME
+      value: /model-cache
+    - name: TRANSFORMERS_CACHE
+      value: /model-cache
+    - name: CUDA_VISIBLE_DEVICES
+      value: "0"
+  volumes:
+  - name: model-cache
+    persistentVolumeClaim:
+      claimName: vllm-model-cache
+  - name: workspace
+    emptyDir: {}

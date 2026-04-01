@@ -28,18 +28,38 @@ class RouterHook:
         self.hooks = []
         layer_idx = 0
 
-        # For Mixtral, the structure is model.layers[i].block_sparse_moe.gate
-        for name, module in model.named_modules():
-            if 'block_sparse_moe' in name and hasattr(module, 'gate'):
-                # Hook the gate (router) module
-                hook = module.gate.register_forward_hook(
-                    self._create_hook_fn(layer_idx)
-                )
-                self.hooks.append(hook)
-                layer_idx += 1
+        # For Mixtral, try multiple potential structures
+        # 1. Try direct access to model.model.layers
+        if hasattr(model, 'model') and hasattr(model.model, 'layers'):
+            for layer in model.model.layers:
+                if hasattr(layer, 'block_sparse_moe') and hasattr(layer.block_sparse_moe, 'gate'):
+                    hook = layer.block_sparse_moe.gate.register_forward_hook(
+                        self._create_hook_fn(layer_idx)
+                    )
+                    self.hooks.append(hook)
+                    layer_idx += 1
+
+        # 2. Fallback: search through all named modules
+        if layer_idx == 0:
+            for name, module in model.named_modules():
+                if 'block_sparse_moe' in name and hasattr(module, 'gate'):
+                    hook = module.gate.register_forward_hook(
+                        self._create_hook_fn(layer_idx)
+                    )
+                    self.hooks.append(hook)
+                    layer_idx += 1
 
         self.layer_count = layer_idx
         print(f"Registered hooks on {self.layer_count} MoE layers")
+
+        if self.layer_count == 0:
+            print("WARNING: No MoE layers found! Model structure:")
+            print(f"  Has 'model' attr: {hasattr(model, 'model')}")
+            if hasattr(model, 'model'):
+                print(f"  Has 'model.layers' attr: {hasattr(model.model, 'layers')}")
+                if hasattr(model.model, 'layers') and len(model.model.layers) > 0:
+                    print(f"  First layer type: {type(model.model.layers[0])}")
+                    print(f"  First layer has block_sparse_moe: {hasattr(model.model.layers[0], 'block_sparse_moe')}")
 
     def _create_hook_fn(self, layer_idx: int):
         """Create a hook function for a specific layer.

@@ -1,0 +1,23 @@
+# Configuration for OpenShift cluster with 71GB MIG slice
+
+model:
+  name: "mistralai/Mixtral-8x7B-Instruct-v0.1"
+  cache_dir: "/workspace/model_cache"  # Use local pod storage
+  device_map: "auto"
+  torch_dtype: "bfloat16"
+  trust_remote_code: true
+  load_in_8bit: false  # Use full precision on GPU
+
+data:
+  dataset_name: "openwebtext"
+  num_samples: 100  # Start with 100 for initial analysis
+  max_length: 512
+  seed: 42
+
+routing_analysis:
+  output_dir: "/workspace/outputs/routing_logs"
+  save_frequency: 20
+
+analysis:
+  output_dir: "/workspace/outputs/analysis"
+  plot_dir: "/workspace/outputs/plots"

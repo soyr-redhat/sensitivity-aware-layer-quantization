@@ -56,6 +56,15 @@ def load_model(config: ModelConfig):
         # Remove torch_dtype when using quantization
         model_kwargs.pop('torch_dtype')
 
+    elif hasattr(config, 'load_in_8bit') and config.load_in_8bit:
+        print("  Using 8-bit quantization")
+
+        model_kwargs['load_in_8bit'] = True
+
+        if hasattr(config, 'llm_int8_enable_fp32_cpu_offload') and config.llm_int8_enable_fp32_cpu_offload:
+            print("  Enabling FP32 CPU offload for compatibility")
+            model_kwargs['llm_int8_enable_fp32_cpu_offload'] = True
+
     model = AutoModelForCausalLM.from_pretrained(
         config.name,
         **model_kwargs

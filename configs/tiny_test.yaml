@@ -1,0 +1,27 @@
+# Configuration for quick testing with a tiny MoE model
+# Use this to validate the code works before trying full Mixtral
+
+model:
+  # Using a much smaller model for testing
+  # Note: This is Mixtral-8x7B-Instruct-v0.1 which should work the same
+  # If this still fails, we can try a different approach
+  name: "mistralai/Mixtral-8x7B-Instruct-v0.1"
+  cache_dir: null
+  device_map: "cpu"  # Force CPU to avoid GPU issues
+  torch_dtype: "float16"
+  trust_remote_code: true
+  load_in_8bit: false  # No quantization, just CPU
+
+data:
+  dataset_name: "openwebtext"
+  num_samples: 5  # Very small for quick test
+  max_length: 128
+  seed: 42
+
+routing_analysis:
+  output_dir: "outputs/routing_logs"
+  save_frequency: 1
+
+analysis:
+  output_dir: "outputs/analysis"
+  plot_dir: "outputs/plots"
