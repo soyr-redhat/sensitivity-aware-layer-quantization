@@ -17,13 +17,10 @@ import json
 import sys
 from pathlib import Path
 
-# Add src to path
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
-
-from config import Config
-from model import load_model_and_tokenizer, collect_routing_decisions
-from data import load_dataset_samples
-from analysis import (
+from src.config import Config
+from src.model import load_model_and_tokenizer, collect_routing_decisions
+from src.data import load_dataset_samples
+from src.analysis import (
     analyze_routing_patterns,
     plot_expert_usage,
     plot_routing_heatmap,
