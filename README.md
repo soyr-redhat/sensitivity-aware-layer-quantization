@@ -51,9 +51,19 @@ Implement actual precision switching system
 ## Getting Started
 
 ```bash
-# Install dependencies
-pip install -r requirements.txt
+# Create virtual environment and install dependencies with uv
+uv venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+uv pip install -e .
 
 # Run routing analysis
+python scripts/01_analyze_routing.py --num-samples 100
+```
+
+### Alternative: Using pip
+```bash
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
 python scripts/01_analyze_routing.py
 ```
