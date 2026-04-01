@@ -94,7 +94,7 @@ Measures perplexity on WikiText-2 style text to validate quality improvements.
 ## Repository Structure
 
 ```
-activation-guided-quantization/
+sensitivity-aware-layer-quantization/
 ├── README.md                          # This file
 ├── LICENSE                            # MIT license
 ├── requirements.txt                   # Python dependencies
@@ -218,8 +218,8 @@ The methodology is architecture-agnostic, but the specific layer-to-quantization
 If you use this work in your research:
 
 ```bibtex
-@misc{activation-guided-quantization-2026,
-  title={Activation-Guided Layer-Wise Quantization for Improved Model Compression},
+@misc{salq-2026,
+  title={SALQ: Sensitivity-Aware Layer Quantization for Improved Model Compression},
   year={2026},
   note={Demonstrates mixed-precision quantization based on layer sensitivity analysis}
 }
