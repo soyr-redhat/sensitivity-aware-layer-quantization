@@ -31,6 +31,10 @@ outputs/tensor_configs/*
 models/
 .cache/
 
+# Test data and deployment artifacts
+data/
+deployment/
+
 # Jupyter
 .ipynb_checkpoints/
 *.ipynb
