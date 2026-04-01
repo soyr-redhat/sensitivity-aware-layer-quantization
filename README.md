@@ -164,6 +164,9 @@ sensitivity-aware-layer-quantization/
 │       ├── conservative_mixed.txt    # Optimal (PPL 1.1527)
 │       ├── balanced_mixed.txt        # Alternative
 │       └── aggressive_mixed.txt      # Baseline
+├── deployment/
+│   ├── README.md                     # OpenShift deployment guide
+│   └── optimizer-job.yaml            # Kubernetes/OpenShift Job spec
 └── models/                            # Generated models (gitignored)
     └── *.gguf                        # Optimized quantized models
 ```
@@ -176,9 +179,27 @@ sensitivity-aware-layer-quantization/
 - Base model in F16 GGUF format
 - Test dataset for perplexity measurement
 
+### Quick Start (OpenShift with GPU)
+
+Run the optimizer on OpenShift cluster with GPU acceleration:
+
+```bash
+# Deploy optimization job
+oc apply -f deployment/optimizer-job.yaml
+
+# Watch progress
+oc logs -f job/layer-optimizer
+
+# Retrieve optimized model when complete
+POD=$(oc get pods -l job-name=layer-optimizer -o jsonpath='{.items[0].metadata.name}')
+oc cp ${POD}:/workspace/models/qwen-3b-optimized.gguf ./models/
+```
+
+See [deployment/README.md](deployment/README.md) for full OpenShift deployment guide.
+
 ### Quick Start: Use Pre-Optimized Configs (Mistral-7B)
 
-If using Mistral-7B, use the pre-optimized configurations:
+If using Mistral-7B locally, use the pre-optimized configurations:
 
 ```bash
 # 1. Create mixed-precision models
