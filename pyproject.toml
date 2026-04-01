@@ -1,22 +1,12 @@
 [project]
-name = "moe-dynamic-quant"
-version = "0.1.0"
-description = "Dynamic per-prompt quantization for Mixture-of-Experts models"
-requires-python = ">=3.10"
+name = "activation-guided-quantization"
+version = "1.0.0"
+description = "Activation-guided layer-wise quantization for improved LLM compression"
+requires-python = ">=3.8"
 dependencies = [
-    "torch>=2.1.0",
-    "transformers>=4.36.0",
-    "accelerate>=0.25.0",
-    "llama-cpp-python>=0.2.0",
-    "datasets>=2.14.0",
+    "torch>=2.0.0",
+    "transformers>=4.30.0",
     "numpy>=1.24.0",
-    "pandas>=2.0.0",
-    "matplotlib>=3.7.0",
-    "seaborn>=0.12.0",
-    "tqdm>=4.65.0",
-    "pyyaml>=6.0.0",
-    "scipy>=1.11.0",
-    "huggingface-hub>=0.19.0",
 ]
 
 [project.optional-dependencies]
@@ -28,12 +18,3 @@ dev = [
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
-
-[tool.hatch.build.targets.wheel]
-packages = ["src"]
-
-[dependency-groups]
-dev = [
-    "ipython>=8.12.0",
-    "jupyter>=1.0.0",
-]
