@@ -10,6 +10,44 @@ Not all layers in a transformer architecture require the same numerical precisio
 - **Middle layers** (medium variance) - Balanced precision (Q6_K)  
 - **Final layers** (high variance) - Maximum precision (Q8_0)
 
+## Key Concepts
+
+### What is Quantization?
+
+Quantization reduces model size by storing weights with fewer bits. Instead of 16-bit floating point (F16), we use lower precision formats:
+
+- **Q8_0**: 8 bits per weight (~8.0 BPW) - Minimal quality loss, ~2x compression
+- **Q6_K**: 6.5 bits per weight (~6.5 BPW) - Good balance, ~2.5x compression
+- **Q4_K**: 4.5 bits per weight (~4.5 BPW) - Aggressive compression, ~3.5x compression
+- **Q2_K**: 2.8 bits per weight (~2.8 BPW) - Extreme compression, significant quality loss
+
+BPW = "bits per weight" - the average number of bits used to store each model parameter.
+
+### What is Perplexity?
+
+Perplexity measures how well a language model predicts text. **Lower perplexity = better model quality.**
+
+Technically, perplexity is the exponentiated cross-entropy loss:
+```
+Perplexity = 2^(average_bits_per_token)
+```
+
+A perplexity of 1.15 means the model is roughly 1.15x "confused" compared to perfect prediction. For reference:
+- **< 1.20**: Excellent quality, near-original performance
+- **1.20 - 1.30**: Good quality, acceptable degradation
+- **> 1.50**: Noticeable quality loss
+
+We use perplexity on WikiText-2 style text to benchmark quantization quality.
+
+### Why Layer-Wise Quantization?
+
+Traditional uniform quantization applies the same precision to all layers. But not all layers are equally sensitive:
+
+- **Early layers** process simple patterns (edges, basic features) → tolerate aggressive quantization
+- **Final layers** make critical decisions → require higher precision
+
+By allocating bits based on layer sensitivity, we achieve better quality at the same model size.
+
 ## Key Results
 
 The **conservative_mixed** configuration achieved:
