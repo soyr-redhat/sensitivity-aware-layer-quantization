@@ -96,6 +96,7 @@ class ConfigurationOptimizer:
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.eval_count = 0
         self.results_history: List[EvaluationResult] = []
+        self.best_model_path = None  # Track best model file
 
         # Auto-detect GPU availability
         self.gpu_layers = self._detect_gpu()
@@ -229,8 +230,29 @@ class ConfigurationOptimizer:
             if self.verbose:
                 print(f"  Result: PPL = {ppl:.4f}")
 
-            # Clean up temporary model
-            quant_model.unlink()
+            # Check if this is the best model so far
+            is_best = False
+            if ppl < 900:  # Valid result
+                valid_results = [r for r in self.results_history if r.perplexity < 900]
+                if not valid_results or ppl < min(r.perplexity for r in valid_results):
+                    is_best = True
+
+            # Save best model, delete others
+            if is_best:
+                # Remove old best model if exists
+                if self.best_model_path and self.best_model_path.exists():
+                    self.best_model_path.unlink()
+
+                # Keep this as the new best
+                best_path = self.output_dir / "best_model.gguf"
+                quant_model.rename(best_path)
+                self.best_model_path = best_path
+
+                if self.verbose:
+                    print(f"  ⭐ New best model! Saved to {best_path}")
+            else:
+                # Clean up non-best model
+                quant_model.unlink()
 
         except subprocess.CalledProcessError as e:
             print(f"  ERROR: {e}")
@@ -405,6 +427,34 @@ class ConfigurationOptimizer:
         self.config_to_tensor_file(result.config, output_path)
         print(f"\nBest config saved to: {output_path}")
 
+    def save_best_model(self, model_name: str, output_dir: str = "models") -> str:
+        """Save the best model to a permanent location.
+
+        Args:
+            model_name: Base name for the model file (e.g., 'mistral-7b-optimized')
+            output_dir: Directory to save the model (default: 'models')
+
+        Returns:
+            Path to saved model file
+        """
+        if not self.best_model_path or not self.best_model_path.exists():
+            print("WARNING: No best model found to save")
+            return None
+
+        output_path = Path(output_dir)
+        output_path.mkdir(parents=True, exist_ok=True)
+
+        final_path = output_path / f"{model_name}.gguf"
+
+        # Copy best model to final location
+        import shutil
+        shutil.copy2(self.best_model_path, final_path)
+
+        print(f"\n✅ Best model saved to: {final_path}")
+        print(f"   Size: {final_path.stat().st_size / (1024**3):.2f} GB")
+
+        return str(final_path)
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -464,6 +514,18 @@ def main():
         default='outputs/tensor_configs/optimized.txt',
         help='Path to save best tensor-type config'
     )
+    parser.add_argument(
+        '--save-model',
+        type=str,
+        default=None,
+        help='Name for saved model file (e.g., mistral-7b-optimized). If not provided, model will not be saved.'
+    )
+    parser.add_argument(
+        '--model-output-dir',
+        type=str,
+        default='models',
+        help='Directory to save the best model (default: models/)'
+    )
     args = parser.parse_args()
 
     optimizer = ConfigurationOptimizer(
@@ -481,6 +543,10 @@ def main():
 
     if best:
         optimizer.save_best_config(best, args.save_config)
+
+        # Save the best model if requested
+        if args.save_model:
+            optimizer.save_best_model(args.save_model, args.model_output_dir)
 
 
 if __name__ == '__main__':

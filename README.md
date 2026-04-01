@@ -83,7 +83,8 @@ python scripts/02_optimize_layer_config.py \
   --test-data data/perplexity_test.txt \
   --target-size 5.0 \
   --max-evals 50 \
-  --save-config configs/optimized.txt
+  --save-config configs/optimized.txt \
+  --save-model mistral-7b-optimized
 ```
 
 This approach:
@@ -91,7 +92,8 @@ This approach:
 2. Measures actual perplexity for each configuration
 3. Uses mutation-based search to explore configuration space
 4. Finds the configuration with best quality within size budget
-5. Outputs the optimal tensor-type file
+5. **Saves the best model** to `models/mistral-7b-optimized.gguf`
+6. Outputs the optimal tensor-type configuration file
 
 **Pros:** Finds empirically optimal configuration for your specific model  
 **Cons:** Requires ~50+ model quantizations and perplexity tests (time-intensive)
@@ -124,10 +126,18 @@ For Mistral-7B, empirical optimization produced:
 Uses llama.cpp's `llama-quantize` with tensor-type files to create GGUF models with per-layer precision control.
 
 ### 4. Benchmark Quality
+
+**Perplexity (Fast):**
 ```bash
 ./scripts/04_benchmark_perplexity.sh
 ```
 Measures perplexity on WikiText-2 style text to validate quality improvements.
+
+**Comprehensive Benchmarks (LM Eval Harness):**
+```bash
+./scripts/05_benchmark_lmeval.sh models/mistral-7b-f16.gguf models/mistral-7b-optimized.gguf
+```
+Runs industry-standard benchmarks (GSM8k, MMLU-Pro, IfEval, GPQA, Math) to measure quality retention across multiple tasks.
 
 ## Repository Structure
 
@@ -144,15 +154,18 @@ sensitivity-aware-layer-quantization/
 │   ├── 01_profile_activations.py     # (Optional) Activation profiling
 │   ├── 02_optimize_layer_config.py   # Bayesian optimizer (recommended)
 │   ├── 03_create_mixed_models.sh     # Build GGUF models
-│   ├── 04_benchmark_perplexity.sh    # Quality benchmarking
+│   ├── 04_benchmark_perplexity.sh    # Perplexity benchmarking
+│   ├── 05_benchmark_lmeval.sh/.py    # LM Eval Harness benchmarks
 │   └── alternatives/
 │       ├── heuristic_configs.py      # Fast heuristic-based configs
 │       └── manual_configs.py         # Manual hardcoded configs
-└── configs/
-    └── mistral-7b/                   # Pre-optimized configurations
-        ├── conservative_mixed.txt    # Optimal (PPL 1.1527)
-        ├── balanced_mixed.txt        # Alternative
-        └── aggressive_mixed.txt      # Baseline
+├── configs/
+│   └── mistral-7b/                   # Pre-optimized configurations
+│       ├── conservative_mixed.txt    # Optimal (PPL 1.1527)
+│       ├── balanced_mixed.txt        # Alternative
+│       └── aggressive_mixed.txt      # Baseline
+└── models/                            # Generated models (gitignored)
+    └── *.gguf                        # Optimized quantized models
 ```
 
 ## Reproduction
