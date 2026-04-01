@@ -29,31 +29,32 @@ LAYER_TENSOR_NAMES = [
 
 
 # Predefined mixed-precision configurations
-# Note: llama-quantize expects lowercase type names in tensor-type files
+# Note: llama-quantize tensor-type files use specific type names:
+# Q2_K, Q4_K (not Q4_K_M), Q6_K, Q8_0
 CONFIGS = {
     'aggressive_mixed': {
-        'description': 'Max compression: Q2_K early, Q4_K_M mid, Q6_K/Q8_0 late',
+        'description': 'Max compression: Q2_K early, Q4_K mid, Q6_K/Q8_0 late',
         'layers': (
-            ['q2_k'] * 19 +      # Layers 0-18: Low sensitivity
-            ['q4_k_m'] * 10 +    # Layers 19-28: Medium sensitivity
-            ['q6_k'] * 2 +       # Layers 29-30: High sensitivity
-            ['q8_0'] * 1         # Layer 31: Critical
+            ['Q2_K'] * 19 +      # Layers 0-18: Low sensitivity
+            ['Q4_K'] * 10 +      # Layers 19-28: Medium sensitivity
+            ['Q6_K'] * 2 +       # Layers 29-30: High sensitivity
+            ['Q8_0'] * 1         # Layer 31: Critical
         )
     },
     'balanced_mixed': {
-        'description': 'Balanced: Q4_K_M early/mid, Q6_K/Q8_0 late',
+        'description': 'Balanced: Q4_K early/mid, Q6_K/Q8_0 late',
         'layers': (
-            ['q4_k_m'] * 21 +    # Layers 0-20
-            ['q6_k'] * 8 +       # Layers 21-28
-            ['q8_0'] * 3         # Layers 29-31
+            ['Q4_K'] * 21 +      # Layers 0-20
+            ['Q6_K'] * 8 +       # Layers 21-28
+            ['Q8_0'] * 3         # Layers 29-31
         )
     },
     'conservative_mixed': {
-        'description': 'Prioritize quality: Q4_K_M early, Q6_K mid, Q8_0 late',
+        'description': 'Prioritize quality: Q4_K early, Q6_K mid, Q8_0 late',
         'layers': (
-            ['q4_k_m'] * 16 +    # Layers 0-15
-            ['q6_k'] * 10 +      # Layers 16-25
-            ['q8_0'] * 6         # Layers 26-31
+            ['Q4_K'] * 16 +      # Layers 0-15
+            ['Q6_K'] * 10 +      # Layers 16-25
+            ['Q8_0'] * 6         # Layers 26-31
         )
     },
 }
