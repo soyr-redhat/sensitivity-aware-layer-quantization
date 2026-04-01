@@ -97,6 +97,36 @@ class ConfigurationOptimizer:
         self.eval_count = 0
         self.results_history: List[EvaluationResult] = []
 
+        # Auto-detect GPU availability
+        self.gpu_layers = self._detect_gpu()
+        if self.verbose:
+            if self.gpu_layers > 0:
+                print(f"GPU detected: offloading {self.gpu_layers} layers")
+            else:
+                print("No GPU detected: using CPU only")
+
+    def _detect_gpu(self) -> int:
+        """Detect if GPU is available and return number of layers to offload.
+
+        Returns:
+            Number of layers to offload (999 for all, 0 for CPU-only)
+        """
+        try:
+            # Try nvidia-smi to detect NVIDIA GPUs
+            result = subprocess.run(
+                ['nvidia-smi', '-L'],
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            if result.returncode == 0 and 'GPU' in result.stdout:
+                return 999  # Offload all layers
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            pass
+
+        # No GPU found
+        return 0
+
     def config_to_tensor_file(self, config: List[str], output_path: str):
         """Generate tensor-type file from configuration."""
         with open(output_path, 'w') as f:
@@ -183,7 +213,7 @@ class ConfigurationOptimizer:
                 '-m', str(quant_model),
                 '-f', self.test_data_path,
                 '-c', '512',  # Reduced context for faster testing
-                '-ngl', '0',
+                '-ngl', str(self.gpu_layers),  # Auto-detected GPU offloading
                 '-t', '4'
             ], check=True, capture_output=True, text=True)
 
