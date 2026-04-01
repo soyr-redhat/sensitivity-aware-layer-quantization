@@ -14,6 +14,11 @@ class ModelConfig:
     device_map: str = "auto"
     torch_dtype: str = "bfloat16"
     trust_remote_code: bool = True
+    # Quantization options
+    load_in_4bit: bool = False
+    bnb_4bit_compute_dtype: str = "float16"
+    bnb_4bit_quant_type: str = "nf4"
+    bnb_4bit_use_double_quant: bool = True
 
 
 @dataclass

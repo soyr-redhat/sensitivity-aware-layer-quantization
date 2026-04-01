@@ -28,12 +28,37 @@ def load_model(config: ModelConfig):
     print(f"  dtype: {config.torch_dtype}")
     print(f"  device_map: {config.device_map}")
 
+    # Build kwargs for model loading
+    model_kwargs = {
+        "cache_dir": config.cache_dir,
+        "device_map": config.device_map,
+        "torch_dtype": torch_dtype,
+        "trust_remote_code": config.trust_remote_code,
+    }
+
+    # Add quantization config if specified
+    if hasattr(config, 'load_in_4bit') and config.load_in_4bit:
+        from transformers import BitsAndBytesConfig
+
+        print("  Using 4-bit quantization (NF4)")
+
+        bnb_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_compute_dtype=dtype_map.get(
+                getattr(config, 'bnb_4bit_compute_dtype', 'float16'),
+                torch.float16
+            ),
+            bnb_4bit_quant_type=getattr(config, 'bnb_4bit_quant_type', 'nf4'),
+            bnb_4bit_use_double_quant=getattr(config, 'bnb_4bit_use_double_quant', True),
+        )
+
+        model_kwargs['quantization_config'] = bnb_config
+        # Remove torch_dtype when using quantization
+        model_kwargs.pop('torch_dtype')
+
     model = AutoModelForCausalLM.from_pretrained(
         config.name,
-        cache_dir=config.cache_dir,
-        device_map=config.device_map,
-        torch_dtype=torch_dtype,
-        trust_remote_code=config.trust_remote_code
+        **model_kwargs
     )
 
     model.eval()
