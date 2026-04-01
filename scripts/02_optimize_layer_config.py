@@ -235,16 +235,32 @@ class ConfigurationOptimizer:
             configs.append([level] * self.num_layers)
 
         # Graduated configs (early layers aggressive, late layers precise)
-        # Conservative: Q4 early, Q6 mid, Q8 late
-        config = (['Q4_K'] * 16 + ['Q6_K'] * 10 + ['Q8_0'] * 6)
+        # Scale to actual number of layers
+
+        # Conservative: ~45% Q4, ~30% Q6, ~25% Q8
+        split1 = int(self.num_layers * 0.45)
+        split2 = int(self.num_layers * 0.75)
+        config = (['Q4_K'] * split1 +
+                  ['Q6_K'] * (split2 - split1) +
+                  ['Q8_0'] * (self.num_layers - split2))
         configs.append(config)
 
-        # Balanced: Q4 majority, Q6 mid, Q8 final
-        config = (['Q4_K'] * 21 + ['Q6_K'] * 8 + ['Q8_0'] * 3)
+        # Balanced: ~60% Q4, ~30% Q6, ~10% Q8
+        split1 = int(self.num_layers * 0.60)
+        split2 = int(self.num_layers * 0.90)
+        config = (['Q4_K'] * split1 +
+                  ['Q6_K'] * (split2 - split1) +
+                  ['Q8_0'] * (self.num_layers - split2))
         configs.append(config)
 
-        # Aggressive: Q2 early, Q4 mid, Q6/Q8 late
-        config = (['Q2_K'] * 19 + ['Q4_K'] * 10 + ['Q6_K'] * 2 + ['Q8_0'] * 1)
+        # Aggressive: ~55% Q2, ~35% Q4, ~7% Q6, ~3% Q8
+        split1 = int(self.num_layers * 0.55)
+        split2 = int(self.num_layers * 0.90)
+        split3 = int(self.num_layers * 0.97)
+        config = (['Q2_K'] * split1 +
+                  ['Q4_K'] * (split2 - split1) +
+                  ['Q6_K'] * (split3 - split2) +
+                  ['Q8_0'] * (self.num_layers - split3))
         configs.append(config)
 
         return configs
