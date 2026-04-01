@@ -167,6 +167,7 @@ class ConfigurationOptimizer:
 
             subprocess.run([
                 self.llama_quantize,
+                '--allow-requantize',  # Allow requantizing already-quantized models
                 '--tensor-type-file', str(tensor_file),
                 self.base_model_path,
                 str(quant_model),
@@ -181,13 +182,14 @@ class ConfigurationOptimizer:
                 self.llama_perplexity,
                 '-m', str(quant_model),
                 '-f', self.test_data_path,
-                '-c', '2048',
+                '-c', '512',  # Reduced context for faster testing
                 '-ngl', '0',
-                '-t', '8'
+                '-t', '4'
             ], check=True, capture_output=True, text=True)
 
-            # Extract perplexity
-            for line in result.stdout.split('\n'):
+            # Extract perplexity (check both stdout and stderr)
+            output_text = result.stdout + result.stderr
+            for line in output_text.split('\n'):
                 if 'Final estimate: PPL' in line:
                     ppl = float(line.split('=')[1].strip().split()[0])
                     break
