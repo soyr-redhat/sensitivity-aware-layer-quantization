@@ -1,7 +1,7 @@
 [project]
 name = "sensitivity-aware-layer-quantization"
 version = "1.0.0"
-description = "Sensitivity-aware layer-wise quantization for improved LLM compression"
+description = "SALQ: Systematic Adaptive Layer Quantization for improved LLM compression"
 requires-python = ">=3.8"
 dependencies = [
     "torch>=2.0.0",

@@ -1,10 +1,10 @@
-# Activation-Guided Layer-Wise Quantization
+# SALQ: Systematic Adaptive Layer Quantization
 
-Research demonstrating that layer sensitivity analysis enables better model compression than uniform quantization.
+Research demonstrating that systematic layer-wise quantization optimization enables better model compression than uniform quantization.
 
 ## Abstract
 
-Not all layers in a transformer architecture require the same numerical precision. By profiling activation patterns and allocating quantization bits based on layer sensitivity, we achieve superior quality-size tradeoffs compared to uniform quantization:
+Not all layers in a transformer architecture require the same numerical precision. By systematically testing layer configurations and selecting quantization levels based on empirical performance, we achieve superior quality-size tradeoffs compared to uniform quantization:
 
 - **Early layers** (low activation variance) - Aggressive quantization (Q4_K)
 - **Middle layers** (medium variance) - Balanced precision (Q6_K)  
@@ -55,7 +55,7 @@ The **conservative_mixed** configuration achieved:
 - **8% smaller** than uniform Q6_K quantization (5.08 GB vs 5.53 GB)
 - **19% of layers** at full Q8_0 precision on critical final layers
 
-These results validate that activation-guided quantization outperforms uniform quantization on the quality-size Pareto frontier.
+These results validate that systematic adaptive quantization outperforms uniform quantization on the quality-size Pareto frontier.
 
 ## Experimental Results
 
@@ -243,10 +243,11 @@ Traditional quantization applies uniform precision across all model layers, trea
 - Final layers make critical decisions and require higher precision
 
 ### Proposed Solution
-Activation-guided layer-wise quantization addresses this by:
-1. Profiling activation variance across layers to identify sensitivity patterns
-2. Allocating quantization precision proportional to measured sensitivity
-3. Using GGUF format to preserve per-layer precision in memory
+Systematic adaptive layer-wise quantization addresses this by:
+1. Empirically testing different layer quantization configurations
+2. Measuring perplexity for each configuration to determine quality
+3. Using Bayesian optimization to find the best layer-precision allocation
+4. Preserving the optimal configuration using GGUF tensor-type files
 
 ### Demonstrated Impact
 Our approach achieves superior quality-size tradeoffs compared to uniform quantization:
@@ -291,9 +292,9 @@ If you use this work in your research:
 
 ```bibtex
 @misc{salq-2026,
-  title={SALQ: Sensitivity-Aware Layer Quantization for Improved Model Compression},
+  title={SALQ: Systematic Adaptive Layer Quantization for Improved Model Compression},
   year={2026},
-  note={Demonstrates mixed-precision quantization based on layer sensitivity analysis}
+  note={Demonstrates empirically-optimized mixed-precision quantization for LLMs}
 }
 ```
 
