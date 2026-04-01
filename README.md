@@ -142,7 +142,7 @@ Runs industry-standard benchmarks (GSM8k, MMLU-Pro, IfEval, GPQA, Math) to measu
 ## Repository Structure
 
 ```
-sensitivity-aware-layer-quantization/
+systematic-adaptive-layer-quantization/
 ├── README.md                          # This file
 ├── LICENSE                            # MIT license
 ├── requirements.txt                   # Python dependencies

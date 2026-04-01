@@ -3,6 +3,9 @@ torch>=2.0.0
 transformers>=4.30.0
 numpy>=1.24.0
 
+# Evaluation framework
+lm-eval>=0.4.0
+
 # Optional: for analysis and visualization
 # pandas>=2.0.0
 # matplotlib>=3.7.0

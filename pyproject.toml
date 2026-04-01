@@ -1,5 +1,5 @@
 [project]
-name = "sensitivity-aware-layer-quantization"
+name = "systematic-adaptive-layer-quantization"
 version = "1.0.0"
 description = "SALQ: Systematic Adaptive Layer Quantization for improved LLM compression"
 requires-python = ">=3.8"
